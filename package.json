@@ -1,0 +1,18 @@
+{
+  "name": "cakebot",
+  "version": "1.0.0",
+  "description": "A bot that hands out Cake for the Breakfastcraft",
+  "main": "app.js",
+  "scripts": {
+    "start": "node-dev app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.4.2",
+    "eslint": "^5.4.0",
+    "gamedig": "^1.0.46",
+    "lodash": "^4.17.10"
+  }
+}
