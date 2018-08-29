@@ -2,11 +2,6 @@ const _ = require('lodash');
 const Gamedig = require('gamedig');
 const Discord = require('discord.js');
 
-function Server(connection) {
-	this.uuid = String(uuid());
-	this.connection = connection;
-}
-
 function Server(name, host) {
   this.name = name;
   this.host = host;
@@ -15,21 +10,22 @@ function Server(name, host) {
   this.maxplayers = 0;
   this.description = '';
   this.minecraftVersion = '';
+  this.pack = '';
+  this.packversion = '';
 }
 
 var Minecraft = {
   servers: [],
 
-  init: function(){
-    this.servers.push(new Server('Bacon', 'bacon.breakfastcraft.com'));
-    this.servers.push(new Server('Bagel', 'bagel.breakfastcraft.com'));
-    this.servers.push(new Server('Donut', 'donut.breakfastcraft.com'));
-    this.servers.push(new Server('Crepe', 'crepe.breakfastcraft.com'));
-    this.servers.push(new Server('Brunch', 'brunch.breakfastcraft.com'));
-    this.servers.push(new Server('Grits', 'grits.breakfastcraft.com'));
+  addServer: function(name, host){
+    this.servers.push({ [name]: new Server(name, host) });
 	},
 
-	getStatus: function(server){
+  setPack: function (name, host) {
+
+  },
+
+	retrieveStatus: function(server){
     Gamedig.query({
       type: 'minecraftping',
       host: server.host
@@ -52,28 +48,25 @@ var Minecraft = {
     });
 	},
 
-	getAll: function(){
+	retrieveAll: function(){
     this.servers.forEach(s => {
-      this.getStatus(s);
+      this.retrieveStatus(s);
     });
 	},
   
-	showStatus: function(){
-
-    const embed = new Discord.RichEmbed()
-                            .setColor('#0099ff')
-                            .setTitle('Server status');
-
+	getStatusEmbed: function(){
+    const embed = new Discord.RichEmbed().setColor('#0099ff');
+    console.log(this.servers);
     this.servers.forEach(s => {
-      console.log(s);
+      console.log(s.Bacon);
       if(s.status === 'Online') {
         if(s.players.length > 0) {
-          embed.addField('**' + s.name + '**' + ' _' + s.description + '_', 'Players online: ' + _.map(s.players).join(', ') + ' [' + s.players.length + '/' + s.maxplayers  +']' );   
+          embed.addField(':arrow_up:' + s.name, '' + s.description + '' + '\n' + _.map(s.players).join(', ') + ' [' + s.players.length + '/' + s.maxplayers + ']');
         } else {
-          embed.addField('**' + s.name + '**' + ' _' + s.description + '_', 'No players online [' + s.players.length + '/' + s.maxplayers  +']' );
+          embed.addField(':arrow_up:' + s.name, '' + s.description + '' + '\n' + 'No players online [' + s.players.length + '/' + s.maxplayers + ']');
         }
       } else {
-        embed.addField('_' + s.name + '_', '_Offline_');
+        embed.addField(':arrow_down:' + s.name, '_Offline_');
       }
       
     });
@@ -82,7 +75,7 @@ var Minecraft = {
 	},
 
 	setupInterval: function(){
-    setInterval(() => this.getAll(), 60000);
+    setInterval(() => this.retrieveAll(), 60000);
 	}
 
 };

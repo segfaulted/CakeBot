@@ -1,18 +1,35 @@
 {
-  "name": "cakebot",
-  "version": "1.0.0",
-  "description": "A bot that hands out Cake for the Breakfastcraft",
-  "main": "app.js",
+  "name": "guidebot",
+  "version": "2.3.5",
+  "description": "A boilerplate example bot with command handler and reloadable commands. Updated and Maintained by the Idiot's Guide Community",
+  "main": "index.js",
   "scripts": {
-    "start": "node-dev app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
-  "author": "",
-  "license": "ISC",
+  "engines": {
+    "node": ">=8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/An-Idiots-Guide/guidebot.git"
+  },
+  "author": "Evelyne Lachance <eslachance@gmail.com> (http://evie.codes)",
+  "contributors": [
+    "York (http://anidiots.guide)"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/An-Idiots-Guide/guidebot/issues"
+  },
+  "homepage": "https://github.com/An-Idiots-Guide/guidebot#readme",
   "dependencies": {
+    "chalk": "^2.3.0",
     "discord.js": "^11.4.2",
-    "eslint": "^5.4.0",
+    "enmap": "^3.1.1",
+    "enmap-sqlite": "^2.0.5",
     "gamedig": "^1.0.46",
-    "lodash": "^4.17.10"
+    "moment": "^2.20.1",
+    "moment-duration-format": "^2.2.0"
   }
 }
