@@ -13,15 +13,14 @@ exports.run = async (client, message, [action, server, var1, ...var2], level) =>
     // User must specify a server that actually exists!
     if (servers[server]) return message.reply("This server already exists");
 
-    // setProp is an enmap feature, it defines a single property of an object in an enmap key/value pair.
-    serverVals = {
+    serverVars = {
       name: server,
       host: var1,
       lastseen: { player: '', timestamp: 0 }
     };
 
-    client.servers.set(server, serverVals);
-
+    client.servers.set(server, serverVars);
+    client.minecraft.addServer(server,var1);
     // Confirm everything is fine!
     message.reply(`Successfully added server ${server}`);
   } else 
@@ -36,8 +35,8 @@ exports.run = async (client, message, [action, server, var1, ...var2], level) =>
       if (!client.servers.has(server)) return message.reply("Please specify an existing server to edit");
 
       // setProp is an enmap feature, it defines a single property of an object in an enmap key/value pair.
-      client.servers.setProp(server, var1, var2);
-
+      client.servers.setProp(server, var1, var2.join(' '));
+      client.minecraft.setServerProp(server, var1, var2.join(' '));
       // Confirm everything is fine!
       message.reply(`Successfully edited ${var1} to ${var2}`);
    } else

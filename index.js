@@ -93,6 +93,7 @@ const init = async () => {
 
   client.servers.forEach(s => {
     client.minecraft.addServer(s.name,s.host);
+    client.minecraft.syncServer(s);
   });
 
 // End top-level async/await function.

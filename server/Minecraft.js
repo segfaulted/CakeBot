@@ -2,35 +2,48 @@ const _ = require('lodash');
 const Gamedig = require('gamedig');
 const Discord = require('discord.js');
 
-function Server(name, host) {
-  this.name = name;
-  this.host = host;
-  this.status = 'unknown';
-  this.players = [];
-  this.maxplayers = 0;
-  this.description = '';
-  this.minecraftVersion = '';
-  this.pack = '';
-  this.packversion = '';
+class Server {
+  constructor(name, host) {
+    this.name = name;
+    this.host = host;
+    this.status = 'unknown';
+    this.players = [];
+    this.maxplayers = 0;
+    this.description = '';
+    this.minecraftVersion = '';
+    this.pack = '';
+    this.packversion = '';
+  }
 }
 
 var Minecraft = {
-  servers: [],
+  servers: new Map(),
 
   addServer: function(name, host){
-    this.servers.push({ [name]: new Server(name, host) });
+    server = new Server(name, host);
+    this.servers.set(name, server);
+    this.retrieveStatus(server);
 	},
 
-  setPack: function (name, host) {
+  syncServer: function(server){
+    if(!server) return null;
 
+    if('pack' in server)
+      this.servers.get(server.name)['pack'] = server.pack;
+
+    if('packversion' in server)
+      this.servers.get(server.name)['packversion'] = server.packversion;
+	},
+
+  setServerProp: function (server, key, value) {
+    this.servers.get(server)[key] = value;
   },
 
-	retrieveStatus: function(server){
+	retrieveStatus: function(server) {
     Gamedig.query({
       type: 'minecraftping',
       host: server.host
     }).then((state) => {
-      //console.log(state);
       server.status = 'Online';
       if(state.players.length > 0) {
         players = [];
@@ -56,19 +69,17 @@ var Minecraft = {
   
 	getStatusEmbed: function(){
     const embed = new Discord.RichEmbed().setColor('#0099ff');
-    console.log(this.servers);
     this.servers.forEach(s => {
-      console.log(s.Bacon);
       if(s.status === 'Online') {
+        
         if(s.players.length > 0) {
-          embed.addField(':arrow_up:' + s.name, '' + s.description + '' + '\n' + _.map(s.players).join(', ') + ' [' + s.players.length + '/' + s.maxplayers + ']');
+          embed.addField(':arrow_up:' + s.name,(s.pack && s.packversion  ? (s.pack + ' ' + s.packversion + '\n') : '') + _.map(s.players).join(', ') + ' [' + s.players.length + '/' + s.maxplayers + ']');
         } else {
-          embed.addField(':arrow_up:' + s.name, '' + s.description + '' + '\n' + 'No players online [' + s.players.length + '/' + s.maxplayers + ']');
+          embed.addField(':arrow_up:' + s.name,(s.pack && s.packversion  ? (s.pack + ' ' + s.packversion + '\n') : '') + 'No players online [' + s.players.length + '/' + s.maxplayers + ']');
         }
       } else {
         embed.addField(':arrow_down:' + s.name, '_Offline_');
       }
-      
     });
 
     return embed;

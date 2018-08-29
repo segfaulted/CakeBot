@@ -5,7 +5,8 @@ const Gamedig = require('gamedig');
 exports.run = async (client, message, args, level) => { // eslint-disable-line no-unused-vars
 
   const servers = client.servers;
-    
+
+  client.minecraft.retrieveAll();
   const embed = client.minecraft.getStatusEmbed();
 
   message.reply(embed);
