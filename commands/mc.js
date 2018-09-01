@@ -49,18 +49,17 @@ exports.run = async (client, message, [action, server, var1, ...var2], level) =>
     
      if (!server) return message.reply(`Server ${server} is not defined`);
 
-     message.reply(`Server: ${inspect(server.host)}`);
+     message.channel.send(`${inspect(server)}`, {code: "json"});
    } else 
 
    if (action === "list") {
     let msg = '';
-    console.log(client.servers);
     if (client.servers.size > 0) {
       client.servers.forEach(s => {
-        msg += s.name + ' - ' + s.host + '\n';
+        msg += s.name + ' - ' + s.host + ' ' + (s.pack ? '[ ' + s.pack + ' ]' : '') + ' ' + ( s.packversion ?  s.packversion : '') + '\n';
       });
 
-      message.reply(`The following servers exist:\n${msg}`);
+      message.channel.send(msg, {code: "json"});
     } else {
       message.reply(`No servers are defined`);
     }
@@ -84,19 +83,21 @@ exports.run = async (client, message, [action, server, var1, ...var2], level) =>
       if (["n", "no", "cancel"].includes(response)) {
         message.reply("Action cancelled.");
       }
+  } else {
+    message.channel.send('Please add a');
   }
 };
 
 exports.conf = {
   enabled: true,
   guildOnly: true,
-  aliases: [],
+  aliases: ['sa'],
   permLevel: "Administrator"
 };
 
 exports.help = {
   name: "mc",
-  category: "System",
+  category: "Minecraft",
   description: "View or change settings for a minecraft server.",
-  usage: "mc <view/get/edit> <server> <key> <value>"
+  usage: "mc <add/set/list/remove> <server> <key> <value>"
 }

@@ -3,12 +3,7 @@ const _ = require('lodash');
 const Gamedig = require('gamedig');
 
 exports.run = async (client, message, args, level) => { // eslint-disable-line no-unused-vars
-
-  const servers = client.servers;
-
-  client.minecraft.retrieveAll();
-  const embed = client.minecraft.getStatusEmbed();
-
+  embed = await client.minecraft.retrieveStatusEmbed();
   message.reply(embed);
 };
 
