@@ -94,9 +94,21 @@ const init = async () => {
   client.servers.forEach(s => {
     client.minecraft.addServer(s.name,s.host);
     client.minecraft.syncServer(s);
+    //client.servers.setProp(s.name, 'lastseen', { player: '', timestamp: 0 }); 
   });
 
-// End top-level async/await function.
+  setInterval(() => { 
+    client.minecraft.intervalUpdateLastSeen().then((lastseen) => {
+      client.servers.forEach((s, index) => {
+        index = Array.from(client.servers.keys()).indexOf(index);
+        if(lastseen[index].length > 0) {
+          client.servers.setProp(s.name, 'lastseen', { player: lastseen[index], timestamp: Date.now()});
+        }
+      });
+    });
+  }
+  , 15000);
+
 };
 
 init();

@@ -110,27 +110,41 @@ var Minecraft = {
     });
   },
 
-  getStatusEmbed: function () {
-    const embed = new Discord.RichEmbed().setColor('#0099ff');
 
-    thiserver.servers.forEach(s => {
-      if (s.status === 'Online') {
+  intervalUpdateLastSeen: function () {
+    return new Promise(resolve => {
+      gamePromises = [];
 
-        if (s.players.length > 0) {
-          embed.addField(':arrow_up:' + s.name, (s.pack && s.packversion ? (s.pack + ' ' + s.packversion + '\n') : '') + _.map(s.players).join(', ') + ' [' + s.players.length + '/' + s.maxplayers + ']');
-        } else {
-          embed.addField(':arrow_up:' + s.name, (s.pack && s.packversion ? (s.pack + ' ' + s.packversion + '\n') : '') + 'No players online [' + s.players.length + '/' + s.maxplayers + ']');
-        }
-      } else {
-        embed.addField(':arrow_down:' + s.name, '_Offline_');
-      }
+      this.servers.forEach(server => {
+        gamePromises.push(Gamedig.query({
+          type: 'minecraftping',
+          host: server.host
+        }));
+      });
+
+      Promise.all(gamePromises).then(values => {
+        const embed = new Discord.RichEmbed().setColor('#0099ff');
+        lastseen = [];
+        this.servers.forEach((server, index) => {
+          index = Array.from(this.servers.keys()).indexOf(index);
+          if (values[index]) {
+            state = values[index];
+            players = '';
+            if (state.players.length > 0) {
+              state.players.forEach(p => {
+                players += p.name + ' ';
+              });
+            }
+            lastseen.push(players);
+          }
+        });
+        resolve(lastseen);
+      });
     });
-
-    return embed;
   },
 
   setupInterval: function () {
-    setInterval(() => this.retrieveAll(), 60000);
+    setInterval(() => this.updateAll(), 60000);
   }
 
 };
