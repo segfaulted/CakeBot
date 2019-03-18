@@ -42,7 +42,8 @@ var Minecraft = {
   retrieveStatus: function (server) {
     Gamedig.query({
       type: 'minecraftping',
-      host: server.host
+      host: server.host,
+      attemptTimeout: 2000
     }).then((state) => {
       server.status = 'Online';
       if (state.players.length > 0) {
@@ -68,18 +69,23 @@ var Minecraft = {
       this.servers.forEach(server => {
         gamePromises.push(Gamedig.query({
           type: 'minecraftping',
-          host: server.host
+          host: server.host,
+          maxAttempts: 1
+        }).catch((error) => {
+          return 'Error:' + error;
         }));
       });
 
-      Promise.all(gamePromises).then(values => {
+
+      Promise.all(gamePromises.map(p => p.catch(e => e))).then(values => {
         const embed = new Discord.RichEmbed().setColor('#0099ff');
         this.servers.forEach((server, index) => {
           index = Array.from(this.servers.keys()).indexOf(index);
-          if (values[index]) {
-            state = values[index];
+          state = values[index];
+          if (state != undefined && typeof state === 'object') {
+            
             server.status = 'Online';
-            if (state.players.length > 0) {
+            if (state.players && state.players.length > 0) {
               players = [];
               state.players.forEach(p => {
                 players.push(p.name);
@@ -89,8 +95,10 @@ var Minecraft = {
               server.players = [];
             }
             server.maxplayers = state.maxplayers;
-            server.description = state.raw.description;
-            server.minecraftVersion = state.raw.version;
+            if(state.raw) {
+              server.minecraftVersion = state.raw.version;
+              server.description = state.raw.description;
+            } 
           } else {
             server.status = 'Offline';
             server.players = '';
@@ -119,6 +127,8 @@ var Minecraft = {
         gamePromises.push(Gamedig.query({
           type: 'minecraftping',
           host: server.host
+        }).catch((error) => {
+          return 'Error:' + error;
         }));
       });
 
@@ -127,16 +137,25 @@ var Minecraft = {
         lastseen = [];
         this.servers.forEach((server, index) => {
           index = Array.from(this.servers.keys()).indexOf(index);
-          if (values[index]) {
-            state = values[index];
-            players = '';
-            if (state.players.length > 0) {
+          state = values[index];
+          seenstate = {};
+          players = '';
+          type = '';
+          if (state != undefined && typeof state === 'object') {
+            if (state.players && state.players.length > 0) {
               state.players.forEach(p => {
-                players += p.name + ' ';
+                players += p.name + ', ';
               });
+              players = players.trim();
+              if(state.players.length > 1) {
+                type = 'were';
+              } else {
+                type = 'was';
+                players = players.replace(',', '');
+              }
             }
-            lastseen.push(players);
           }
+          lastseen.push({ players: players, type: type});
         });
         resolve(lastseen);
       });
