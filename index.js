@@ -101,8 +101,8 @@ const init = async () => {
     client.minecraft.intervalUpdateLastSeen().then((lastseen) => {
       client.servers.forEach((s, index) => {
         index = Array.from(client.servers.keys()).indexOf(index);
-        if(lastseen[index].length > 0) {
-          client.servers.setProp(s.name, 'lastseen', { player: lastseen[index], timestamp: Date.now()});
+        if(lastseen[index] && lastseen[index].players.length > 0) {
+          client.servers.setProp(s.name, 'lastseen', { player: lastseen[index].players, timestamp: Date.now(), type: lastseen[index].type});
         }
       });
     });
